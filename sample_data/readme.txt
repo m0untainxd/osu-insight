@@ -1,0 +1,1 @@
+This folder contains a sample of data that was randomly selected from the two datasets, updates and users.
