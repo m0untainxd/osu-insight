@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 # This script provides functions that will anonymise a dataset based on 
-# the user existing user id and give them a random 6 digit id
+# the existing user id and give them a new id
 
 # FOR TESTING #
 def main():
