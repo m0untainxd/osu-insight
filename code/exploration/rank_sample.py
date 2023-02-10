@@ -14,7 +14,7 @@ ranges = [
             {"from": 500, "to": 999, "name": "500 - 999"},
             {"from": 100, "to": 499, "name": "100 - 499"}]
 
-def distr():
+def main():
     #open the dataset
     os.chdir("D:/Honours Project Data")
     df_updates = pd.read_csv("original_data/updates.csv", index_col=0)
@@ -47,4 +47,5 @@ def distr():
     df_sampled_updates = pd.concat(frames)
     df_sampled_updates.to_csv('final_data/sampled_updates.csv', index=False)
 
-distr()
+if __name__ == "__main__":
+    main()
