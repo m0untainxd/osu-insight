@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 from pathlib import Path
 
 #this script is for generating a random sample of updates for each rank range
