@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from pathlib import Path
 
 #this script is for generating a random sample of updates for each rank range
 
@@ -16,13 +17,14 @@ ranges = [
 
 def main():
     #open the dataset
-    os.chdir("D:/Honours Project Data")
-    df_updates = pd.read_csv("original_data/updates.csv", index_col=0)
-    df_users = pd.read_csv("original_data/users.csv")
-
-    print(df_users)
+    path = Path(__file__).parent.parent.parent.absolute()
+    df_updates = pd.read_csv(path / "original_data/updates.csv", index_col=0)
+    df_users = pd.read_csv(path / "original_data/users.csv")
 
     frames = []
+
+    print("Do you want to sample the data before adding range? (y/n)")
+    inp = input()
 
     #iterate through samples in list and create a dataset for each
     for i in ranges:
@@ -30,22 +32,31 @@ def main():
         #get range
         df_range = df_updates[(df_updates['pp_rank'] >= rng['from']) & (df_updates['pp_rank'] <= rng['to']) & (df_updates['mode'] == 0)]
 
-        #get list of unique users in the range, then create a filtered df containing all those users
-        unique_users = df_range['user'].unique()
-        df_users_unique = df_users.loc[df_users['osu_id'].isin(unique_users)]
+        if inp == "y":
+            #get list of unique users in the range, then create a filtered df containing all those users
+            unique_users = df_range['user'].unique()
+            df_users_unique = df_users.loc[df_users['osu_id'].isin(unique_users)]
 
-        #sample the users table and use this to filter the updates dataset
-        df_users_sample = df_users_unique.sample(50)
-        unique_users_sample = df_users_sample['osu_id'].unique()
-        df_updates_sample = df_range.loc[df_range['user'].isin(unique_users_sample)]
+            #sample the users table and use this to filter the updates dataset
+            df_users_sample = df_users_unique.sample(50)
+            unique_users_sample = df_users_sample['osu_id'].unique()
+            df_updates_sample = df_range.loc[df_range['user'].isin(unique_users_sample)]
 
-        #add a field to the dataframe that will apply the current sample name to all records
-        df_updates_sample['range'] = i['name']
-        frames.append(df_updates_sample) #append to list of dataframes to be concatenated
+            #add a field to the dataframe that will apply the current sample name to all records
+            df_updates_sample['range'] = i['name']
+            frames.append(df_updates_sample) #append to list of dataframes to be concatenated
+
+        elif inp == "n":
+            df_range['range'] = i['name']
+            frames.append(df_range)
 
     # concatenate into one dataset
-    df_sampled_updates = pd.concat(frames)
-    df_sampled_updates.to_csv('final_data/sampled_updates.csv', index=False)
+    if inp == "y":
+        df_sampled_updates = pd.concat(frames)
+        df_sampled_updates.to_csv(path / 'final_data/sampled_updates.csv', index=False)
+    elif inp == "n":
+        df_range_updates = pd.concat(frames)
+        df_range_updates.to_csv(path / 'final_data/range_updates.csv')
 
 if __name__ == "__main__":
     main()

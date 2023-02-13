@@ -4,26 +4,36 @@ from pathlib import Path
 
 def main():
     #set path and open dataset
-    path = Path(__file__).parent.parent.parent.absolute() / "original_data/updates.csv"
+    path = Path(__file__).parent.parent.parent.absolute() / "final_data/range_updates.csv"
     print(path)
     df = pd.read_csv(path)
 
-    #filter dataset so it is 100-200,000 and standard mode
-    df_range = df[(df['pp_rank'] >= 100) & (df['pp_rank'] <= 200000) & (df['mode'] == 0)]
+    #new dataset with only rank and range
+    df_rank = df.filter(["pp_rank", "range"], axis=1)
 
+    #plot the data per 1000 ranks
+    fig_1000 = px.histogram(df_rank, nbins=200, title='Rank Distribution', color='range')
+    #lables
+    fig_1000.update_xaxes(title_text='Rank').update_yaxes(title_text='Count')
 
-    #get all of the rank updates as a list
-    ranks = df_range["pp_rank"].tolist()
+    #create plot showing the count of updates for each range
+    ranges = df_rank['range'].unique().tolist() #get all range types
+    counts = [] #init array to store counts
 
-    #plot the data
-    fig = px.histogram(ranks, nbins=200, title='Rank Distribution')
+    #iterate through ranges to get counts
+    for i in ranges:
+        count = len(df[df["range"] == i])
+        counts.append(count)
 
-    #labels
-    fig.update_xaxes(title_text='Rank')
-    fig.update_yaxes(title_text='Count')
+    #plot the data for range counts
+    fig_ranges = px.histogram(x=ranges, y=counts, title='Count of updates per Range')
+    #lables
+    fig_ranges.update_xaxes(title_text='Rank Ranges').update_yaxes(title_text='Count')
 
-    # Show the plot
-    fig.show()
+    #show plots
+    fig_1000.show()
+    fig_ranges.show()
+
 
 if __name__ == "__main__":
     main()
