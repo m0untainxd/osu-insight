@@ -4,11 +4,12 @@ from pathlib import Path
 import requests
 import dotenv
 import flask
-import json
+from datetime import datetime
 
 # graph imports
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objs as go
 
 # dash imports
 import dash
@@ -20,6 +21,7 @@ from dash.dependencies import Input, Output, State
 # class imports
 from averages import Averages
 from progression import Progression
+from rank_pp import RankPP
 
 # load .env file and get params
 dotenv.load_dotenv()
@@ -32,9 +34,22 @@ path = Path.cwd().parent.parent.absolute()
 # initialise classes
 avg = Averages(path)
 prg = Progression(path)
+rnkpp = RankPP(path)
 
 # get general avg data
 gen_avgs = avg.general()
+
+# get data for rank and pp
+df_rank_pp = rnkpp.graph_data()
+
+# construct graphs
+graph = go.Figure()
+y1 = px.line(df_rank_pp, x="month", y="avg_rank")
+y1.update_layout(yaxis_range=[10000,80000])
+y2 = px.line(df_rank_pp, x="month", y="avg_pp")
+
+graph.add_trace(y1.data[0])
+graph.add_trace(y2.data[0])
 
 # --------------- App Layout --------------- #
 
@@ -43,6 +58,11 @@ app.layout = dbc.Container([
     dcc.Location(id="url", refresh=False),
 
     html.H1("osu!insights", style={'text-align': 'center'}),
+
+    html.H3("Average Rank and PP over time"),
+
+    dcc.Graph(id="avg_graph", figure=graph),
+    html.Br(),
 
     dcc.Dropdown(id="slct_range",
                  options=[
