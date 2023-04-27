@@ -3,3 +3,6 @@ range_updates.csv
 fixed_range_updates.csv
 progression_filtered.csv
 .vscode
+__pycache__
+.idea
+test.py
